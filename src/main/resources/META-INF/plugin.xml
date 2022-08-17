@@ -1,0 +1,38 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+    <!-- Unique identifier of the plugin. It should be FQN. It cannot be changed between the plugin versions. -->
+    <id>com.flipperplz.dayzdev</id>
+
+    <!-- Public plugin name should be written in Title Case.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-name -->
+    <name>DayZ Development</name>
+
+    <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
+    <vendor email="ryann@nosupport.com" url="https://github.com/FlipperPlz">FlipperPlz</vendor>
+
+
+    <!-- Product and plugin compatibility requirements.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
+    <depends>com.intellij.modules.platform</depends>
+
+    <!-- Extension points defined by the plugin.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
+    <extensions defaultExtensionNs="com.intellij">
+        <fileType
+                name="Config File"
+                implementationClass="com.flipperplz.dayzdev.language.rap.RapLanguageFileType"
+                fieldName="INSTANCE"
+                language="Rap"
+                extensions="cpp;rvmat"
+        />
+        <lang.parserDefinition
+            language="Rap"
+            implementationClass="com.flipperplz.dayzdev.language.rap.parser.RapParserDefinition"
+        />
+        <lang.syntaxHighlighterFactory
+            language="Rap"
+            implementationClass="com.flipperplz.dayzdev.language.rap.highlighting.RapSyntaxHighlighterFactory"
+        />
+        <colorSettingsPage implementation="com.flipperplz.dayzdev.language.rap.highlighting.settings.RapColorSettingsPage"/>
+    </extensions>
+</idea-plugin>

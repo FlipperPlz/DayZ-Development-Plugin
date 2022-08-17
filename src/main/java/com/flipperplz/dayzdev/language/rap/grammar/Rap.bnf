@@ -1,0 +1,56 @@
+{
+    parserClass="com.flipperplz.dayzdev.language.rap.parser.RapParser"
+
+    extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+
+    psiClassPrefix="Rap"
+    psiImplClassSuffix="Impl"
+    psiPackage="com.flipperplz.dayzdev.language.rap.psi"
+    psiImplPackage="com.flipperplz.dayzdev.language.rap.psi.impl"
+
+    elementTypeHolderClass="com.flipperplz.dayzdev.language.rap.psi.RapElementTypes"
+    elementTypeClass="com.flipperplz.dayzdev.language.rap.psi.RapElementType"
+    tokenTypeClass="com.flipperplz.dayzdev.language.rap.psi.RapTokenType"
+
+    tokens = [
+        SINGLE_LINE_COMMENT      = 'regexp://.*';
+        EMPTY_DELIMITED_COMMENT  = 'regexp:/\*\*?/';
+        DELIMITED_COMMENT        = 'regexp:/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+/'
+        STRING                   = 'regexp:"(\\\\|\\"|.*?)*"';
+        INTEGER                  = 'regexp:-?[0-9]*';
+        FLOAT                    = 'regexp:[+-]?\d+(\.\d+)([Ee][+-]?\d+)?';
+        IDENTIFIER               = 'regexp:[a-zA-Z0-9_]+';
+        WHITE_SPACE              = 'regexp:\s+'
+        LSBRACKET                = '['
+        RSBRACKET                = ']'
+        LCURLY                   = '{'
+        RCURLY                   = '}'
+        SEMICOLON                = ';'
+        COLON                    = ':'
+        COMMA                    = ','
+        ASSIGN                   = '='
+        APPEND                   = '+='
+    ]
+}
+
+ParamFile ::= Statement*;
+Statement ::=
+             DeleteStatement            |
+             ArrayAppensionStatement    |
+             ExternalClassDeclaration   |
+             ClassDeclaration           |
+             ArrayDeclaration           |
+             TokenDeclaration           ;
+
+ClassDeclaration ::= class IDENTIFIER (ClassExtension)? lcurly Statement* rcurly semicolon;
+ExternalClassDeclaration ::= class IDENTIFIER semicolon;
+TokenDeclaration ::= IDENTIFIER assign (STRING | INTEGER | FLOAT) semicolon;
+ArrayDeclaration ::= ArrayName assign LiteralArray semicolon;
+ArrayAppensionStatement ::= ArrayName append LiteralArray semicolon;
+DeleteStatement ::= delete IDENTIFIER semicolon;
+
+LiteralArray ::= lcurly (ArrayValue (comma ArrayValue)* comma?)? rcurly;
+ArrayValue ::= (TokenValue | LiteralArray);
+TokenValue ::= STRING | INTEGER | FLOAT;
+ClassExtension ::= colon IDENTIFIER;
+ArrayName ::= IDENTIFIER lsbracket rsbracket;
