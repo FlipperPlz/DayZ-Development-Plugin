@@ -23,7 +23,7 @@ public class RapParserDefinition implements ParserDefinition {
             RapElementTypes.SINGLE_LINE_COMMENT
     );
     public static final TokenSet STRINGS = TokenSet.create(
-            RapElementTypes.STRING
+            RapElementTypes.LITERALSTRING
     );
     public static final IFileElementType FILE = new IFileElementType(
             RapLanguage.INSTANCE

@@ -16,9 +16,9 @@
         SINGLE_LINE_COMMENT      = 'regexp://.*';
         EMPTY_DELIMITED_COMMENT  = 'regexp:/\*\*?/';
         DELIMITED_COMMENT        = 'regexp:/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+/'
-        STRING                   = 'regexp:"(\\\\|\\"|.*?)*"';
-        INTEGER                  = 'regexp:-?[0-9]*';
-        FLOAT                    = 'regexp:[+-]?\d+(\.\d+)([Ee][+-]?\d+)?';
+        LITERALSTRING            = 'regexp:"(\\\\|\\"|.*?)*"';
+        LITERALINTEGER           = 'regexp:-?[0-9]+';
+        LITERALFLOAT             = 'regexp:[+-]?\d+(\.\d+)([Ee][+-]?\d+)?';
         IDENTIFIER               = 'regexp:[a-zA-Z0-9_]+';
         WHITE_SPACE              = 'regexp:\s+'
         LSBRACKET                = '['
@@ -42,15 +42,18 @@ Statement ::=
              ArrayDeclaration           |
              TokenDeclaration           ;
 
-ClassDeclaration ::= class IDENTIFIER (ClassExtension)? lcurly Statement* rcurly semicolon;
-ExternalClassDeclaration ::= class IDENTIFIER semicolon;
-TokenDeclaration ::= IDENTIFIER assign (STRING | INTEGER | FLOAT) semicolon;
-ArrayDeclaration ::= ArrayName assign LiteralArray semicolon;
-ArrayAppensionStatement ::= ArrayName append LiteralArray semicolon;
-DeleteStatement ::= delete IDENTIFIER semicolon;
+ClassDeclaration ::= class ClassName (ClassExtension)? StatementBlock semicolon
+ExternalClassDeclaration ::= class ClassName semicolon
+TokenDeclaration ::= VariableName assign TokenValue semicolon
+ArrayDeclaration ::= ArrayName assign LiteralArray semicolon
+ArrayAppensionStatement ::= ArrayName append LiteralArray semicolon
+DeleteStatement ::= delete ClassName semicolon
 
-LiteralArray ::= lcurly (ArrayValue (comma ArrayValue)* comma?)? rcurly;
-ArrayValue ::= (TokenValue | LiteralArray);
-TokenValue ::= STRING | INTEGER | FLOAT;
-ClassExtension ::= colon IDENTIFIER;
-ArrayName ::= IDENTIFIER lsbracket rsbracket;
+LiteralArray ::= lcurly (ArrayValue (comma ArrayValue)* comma?)? rcurly
+ArrayValue ::= (TokenValue | LiteralArray)
+TokenValue ::= LITERALSTRING | LITERALINTEGER | LITERALFLOAT
+ClassExtension ::= colon ClassName
+ArrayName ::= VariableName lsbracket rsbracket
+StatementBlock ::= lcurly Statement* rcurly;
+ClassName ::= IDENTIFIER
+VariableName ::= IDENTIFIER

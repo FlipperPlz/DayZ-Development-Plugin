@@ -143,11 +143,11 @@ public class RapSyntaxHighlighter extends SyntaxHighlighterBase {
            tokenType.equals(RapElementTypes.SINGLE_LINE_COMMENT))
             return COMMENT_KEYS;
 
-        if(tokenType.equals(RapElementTypes.FLOAT) ||
-           tokenType.equals(RapElementTypes.INTEGER))
+        if(tokenType.equals(RapElementTypes.LITERALFLOAT) ||
+           tokenType.equals(RapElementTypes.LITERALINTEGER))
             return NUMBER_KEYS;
 
-        if(tokenType.equals(RapElementTypes.STRING))
+        if(tokenType.equals(RapElementTypes.LITERALSTRING))
             return STRING_KEYS;
 
         if(tokenType.equals(RapElementTypes.SEMICOLON))
