@@ -1,0 +1,207 @@
+{
+    parserClass="com.flipperplz.dayzdev.language.enforce.parser.EnforceParser"
+
+    extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+
+    psiClassPrefix="Es"
+    psiImplClassSuffix="Impl"
+    psiPackage="com.flipperplz.dayzdev.language.enforce.psi"
+    psiImplPackage="com.flipperplz.dayzdev.language.enforce.psi.impl"
+
+    elementTypeHolderClass="com.flipperplz.dayzdev.language.enforce.psi.EnforceElementTypes"
+    elementTypeClass="com.flipperplz.dayzdev.language.enforce.psi.EnforceElementType"
+    tokenTypeClass="com.flipperplz.dayzdev.language.enforce.psi.EnforceTokenType"
+
+    tokens = [
+        SINGLE_LINE_COMMENT      = 'regexp://.*';
+        EMPTY_DELIMITED_COMMENT  = 'regexp:/\*\*?/';
+        DELIMITED_COMMENT        = 'regexp:/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+/';
+        STRING_LITERAL           = 'regexp:"(\\\\|\\"|.*?)*"';
+        FLOAT_LITERAL            = 'regexp:[+-]?\d+(\.\d+)([Ee][+-]?\d+)?'
+        INTEGER_LITERAL          = 'regexp:(0[xX][0-9a-fA-F]+)|-?[0-9]+';
+        BOOLEAN_LITERAL          = 'regexp:(true|false)';
+        NULL_LITERAL             = 'regexp:null';
+
+        IDENTIFIER               = 'regexp:[a-zA-Z0-9_]+';
+        WHITE_SPACE              = 'regexp:\s+'
+        LSBRACKET                = '['
+        RSBRACKET                = ']'
+        LCURLY                   = '{'
+        RCURLY                   = '}'
+        SEMICOLON                = ';'
+        COLON                    = ':'
+        COMMA                    = ','
+        OP_INCREMENT             = '++'
+        OP_DECREMENT             = '--'
+        OP_LSHIFT                = '<<'
+        OP_RSHIFT                = '>>'
+        OP_ASSIGN                = '='
+        OP_EQUAL                 = '=='
+        OP_INEQUAL               = '!='
+        OP_LOGICAL_OR            = '||'
+        OP_LOGICAL_AND           = '&&'
+        OP_AND_ASSIGN            = '&='
+        OP_LESS_EQUAL            = '<='
+        OP_GREATER_EQUAL         = '>='
+        OP_XOR_ASSIGN            = '^='
+        OP_OR_ASSIGN             = '|='
+        OP_DIVIDE_ASSIGN         = '/='
+        OP_MULTIPLY_ASSIGN       = '*='
+        OP_ADD_ASSIGN            = '+='
+        OP_SUBTRACT_ASSIGN       = '-='
+        OP_LSHIFT_ASSIGN         = '<<='
+        OP_RSHIFT_ASSIGN         = '>>='
+        OP_BITWISE_OR            = '|'
+        OP_BITWISE_XOR           = '^'
+        OP_BITWISE_AND           = '&'
+        OP_BITWISE_NOT           = '~'
+        OP_GREATER               = '>'
+        OP_LESS                  = '<'
+        OP_SUBTRACT              = '-'
+        OP_ADD                   = '+'
+        OP_MULTIPLY              = '*'
+        OP_DIVIDE                = '/'
+        OP_DOT                   = '.'
+        OP_BANG                  = '!'
+        OP_MODULO                = '%'
+        COLON                    = ':'
+        LPARENTHESIS             = '('
+        RPARENTHESIS             = ')'
+    ]
+}
+File ::= (GlobalDeclaration | TypeDeclaration)*;
+
+GlobalDeclaration ::= (VariableDeclaration | FunctionDeclaration)
+TypeDeclaration ::= (ClassDeclaration | EnumDeclaration)
+
+ClassDeclaration ::= Attribute? ClassModifier* class Classname TypeDeclarationList? ClassExtension? VarAndFunctionBlock SEMICOLON?
+ClassExtension ::= (extends | ':') ClassReference
+VarAndFunctionBlock ::= (GlobalDeclaration) | '{' (GlobalDeclaration)* '}';
+
+EnumDeclaration ::= Attribute? ClassModifier* enum Classname ClassExtension? '{' <<CommaSeperatedList EnumValue>>? '}' ';'?
+EnumValue ::= VariableName (OP_ASSIGN Expression)?
+
+FunctionDeclaration ::= Attribute? FunctionModifier* ClassReference ('[' ']')? '~'? FunctionName FunctionParameterList Statement ';'?
+VariableDeclaration ::= Attribute? VariableModifier* ClassReference <<CommaSeperatedList VariableDeclarator>> ';'
+VariableDeclarator  ::= VariableName ArrayIndex? ('=' Expression)?
+
+Expression ::= (
+    PrimaryExpression
+  | ArithmeticExpression
+  | ArrayIndexExpression
+  | UnaryPrefixExpression
+  | UnarySuffixExpression
+  | LogicalExpression
+  | AssignmentExpression
+  | CastExpression
+  | ObjectCreationExpression
+  | RelativeExpression
+  | ThisExpression
+  | SuperExpression
+  | ParenthesisedExpression
+)
+
+PrimaryExpression ::= (
+      LiteralString
+    | LiteralInteger
+    | LiteralFloat
+    | LiteralBoolean
+    | LiteralNull
+    | LiteralArray
+    | FunctionCall
+    | ClassReference
+) {extends = Expression}
+
+RelativeExpression ::= Expression (ComparativeOperator) Expression {extends = Expression}
+ArithmeticExpression ::= Expression (ArithmeticOperator) Expression {extends = Expression}
+UnaryPrefixExpression ::= (UnaryPrefixOperator) Expression {extends = Expression}
+UnarySuffixExpression ::= Expression (UnarySuffixOperator) {extends = Expression}
+AssignmentExpression ::= Expression (AssignmentOperator) Expression {extends = Expression}
+LogicalExpression    ::= Expression (LogicalOperator) Expression {extends = Expression}
+ArrayIndexExpression ::= Expression (ArrayIndex) {extends = Expression}
+CastExpression ::= '(' (ClassReference) ')' Expression {extends = Expression}
+ObjectCreationExpression ::= new VariableModifier* ClassReference FunctionCallParameterList? {extends = Expression}
+ThisExpression ::= this {extends = Expression}
+SuperExpression ::= super {extends = Expression}
+ParenthesisedExpression ::= '(' Expression ')' {extends = Expression}
+FunctionCall ::= FunctionName FunctionCallParameterList
+
+Statement ::= (
+      BlockStatement
+    | Expression ';'
+    | SemicolonStatement
+    | ThreadStatement
+    | VariableDeclaration
+    | DeleteStatement
+    | IfStatement
+    | ForStatement
+    | ForEachStatement
+    | WhileStatement
+    | ReturnStatement
+    | BreakStatement
+    | ContinueStatement
+    | LambdaStatement
+    | GotoStatement
+    | SwitchStatement
+)
+BlockStatement ::= ('{' Statement* '}') ';'?
+SemicolonStatement ::= ';'
+ThreadStatement ::= thread FunctionCall ';'
+DeleteStatement ::= delete Expression ';'
+IfStatement ::= if ParenthesisedExpression Statement ElseStatement?
+ElseStatement ::= else Statement
+ForStatement ::= for ForControl Statement
+ForEachStatement ::= foreach '(' <<CommaSeperatedList ForEachVariable>> ':' Expression ')' Statement
+WhileStatement ::= while ParenthesisedExpression Statement
+ReturnStatement ::= return Expression? ';'
+BreakStatement ::= break ';'
+ContinueStatement ::= continue ';'
+LambdaStatement ::= ClassReference FunctionName FunctionCallParameterList ';'
+GotoStatement ::= goto Expression ';'
+SwitchStatement ::= switch ParenthesisedExpression '{' SwitchBlockStatementGroup* '}'
+
+ArrayIndex ::= '[' Expression? ']';
+TypeList ::= '<' <<CommaSeperatedList GenericType>>? '>'
+TypeDeclarationList ::= '<' <<CommaSeperatedList GenericTypeDeclaration>>? '>'
+GenericType ::= VariableModifier* ClassReference;
+GenericTypeDeclaration ::= VariableModifier* ClassReference VariableName ('[' ']')?
+
+ForEachVariable ::= VariableModifier* ClassReference VariableName;
+ForControl ::= '(' Statement ';'? Expression ';'? Expression? ')'
+SwitchBlockStatementGroup ::= SwitchLabel | DefaultSwitchLabel;
+DefaultSwitchLabel ::= 'default' ':' Statement*;
+SwitchLabel ::= 'case' Expression ':' Statement*
+
+VariableName ::= IDENTIFIER;
+FunctionName ::= IDENTIFIER;
+Classname ::= IDENTIFIER;
+ClassReference  ::= Classname TypeList?
+
+FunctionCallParameterList ::= '(' <<CommaSeperatedList FunctionCallParameter>>? ')'
+FunctionCallParameter ::= Expression | OptionalFunctionCallParam
+OptionalFunctionCallParam ::= VariableName ':' Expression
+
+FunctionParameterList ::= '(' (<<CommaSeperatedList FunctionParameter>>)? ')'
+FunctionParameter ::= VariableModifier* ClassReference VariableDeclarator
+
+LiteralString ::= STRING_LITERAL {extends = PrimaryExpression}
+LiteralInteger ::= INTEGER_LITERAL {extends = PrimaryExpression}
+LiteralFloat  ::= FLOAT_LITERAL {extends = PrimaryExpression}
+LiteralBoolean ::= BOOLEAN_LITERAL {extends = PrimaryExpression}
+LiteralNull   ::= NULL_LITERAL {extends = PrimaryExpression}
+LiteralArray ::= '{' (<<CommaSeperatedList Expression>>)? '}' {extends = PrimaryExpression}
+
+Attribute ::= '[' FunctionCall ']'
+
+ClassModifier    ::= (modded | sealed)
+VariableModifier ::= (private | protected | static | autoptr | proto | ref | reference | const | owned | out | notnull | inout | local)
+FunctionModifier ::= (private | protected | external | static | override | owned | ref | reference | proto | native | volatile | event)
+
+ArithmeticOperator ::= (OP_MULTIPLY | OP_DIVIDE | OP_MODULO | OP_ADD | OP_SUBTRACT | OP_LSHIFT | OP_RSHIFT | OP_BITWISE_OR | OP_BITWISE_AND | OP_BITWISE_NOT | OP_BITWISE_XOR)
+UnarySuffixOperator ::= (OP_INCREMENT | OP_DECREMENT)
+UnaryPrefixOperator ::= (OP_INCREMENT | OP_DECREMENT | OP_BANG | OP_BITWISE_NOT | OP_ADD | OP_SUBTRACT)
+AssignmentOperator ::= (OP_ASSIGN | OP_ADD_ASSIGN | OP_SUBTRACT_ASSIGN | OP_MULTIPLY_ASSIGN | OP_DIVIDE_ASSIGN | OP_OR_ASSIGN | OP_AND_ASSIGN | OP_LSHIFT_ASSIGN | OP_RSHIFT_ASSIGN)
+ComparativeOperator ::= (OP_INEQUAL | OP_EQUAL | OP_LESS_EQUAL | OP_GREATER_EQUAL | OP_LESS | OP_GREATER)
+LogicalOperator ::= (OP_LOGICAL_OR | OP_LOGICAL_AND | OP_DOT)
+
+private meta CommaSeperatedList ::= <<p>> (',' <<p>>)*

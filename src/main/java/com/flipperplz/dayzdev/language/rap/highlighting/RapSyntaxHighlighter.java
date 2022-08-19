@@ -53,7 +53,7 @@ public class RapSyntaxHighlighter extends SyntaxHighlighterBase {
     );
 
     public static final TextAttributesKey COLON = TextAttributesKey.createTextAttributesKey(
-            "RAP_COMMA",
+            "RAP_COLON",
             DefaultLanguageHighlighterColors.DOT
     );
 
