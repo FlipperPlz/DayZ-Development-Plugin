@@ -19,7 +19,7 @@ public class EnforceLanguageFileType extends LanguageFileType {
 
     @Override
     public @NonNls @NotNull String getName() {
-        return "Enforce";
+        return "Enforce Script";
     }
 
     @Override

@@ -18,7 +18,7 @@ public class RapLanguageFileType extends LanguageFileType {
 
     @Override
     public @NonNls @NotNull String getName() {
-        return "Parameter File";
+        return "Config File";
     }
 
     @Override
