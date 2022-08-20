@@ -1,6 +1,6 @@
-package com.flipperplz.dayzdev.language.rap.highlighting.settings;
+package com.flipperplz.dayzdev.language.rap.sugar.highlighting.settings;
 
-import com.flipperplz.dayzdev.language.rap.highlighting.RapSyntaxHighlighter;
+import com.flipperplz.dayzdev.language.rap.sugar.highlighting.RapSyntaxHighlighter;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.fileTypes.SyntaxHighlighter;
 import com.intellij.openapi.options.colors.AttributesDescriptor;
@@ -27,7 +27,7 @@ public class RapColorSettingsPage implements ColorSettingsPage {
             new AttributesDescriptor("Separators//Semicolons", RapSyntaxHighlighter.SEMICOLON),
             new AttributesDescriptor("Separators//Colons", RapSyntaxHighlighter.COLON),
             new AttributesDescriptor("Operators", RapSyntaxHighlighter.OPERATORS),
-            new AttributesDescriptor("Bad Value", RapSyntaxHighlighter.BAD_CHARACTER)
+            new AttributesDescriptor("BadValue", RapSyntaxHighlighter.BAD_CHARACTER)
     };
 
     @Override
@@ -86,6 +86,6 @@ public class RapColorSettingsPage implements ColorSettingsPage {
 
     @Override
     public @NotNull @NlsContexts.ConfigurableName String getDisplayName() {
-        return "DayZ Config (rvmat | cpp)";
+        return "DayZ: Config File (rvmat | cpp)";
     }
 }

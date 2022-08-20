@@ -1,4 +1,4 @@
-package com.flipperplz.dayzdev.language.rap.highlighting;
+package com.flipperplz.dayzdev.language.rap.sugar.highlighting;
 
 import com.flipperplz.dayzdev.language.rap.lexer.RapLexerAdapter;
 import com.flipperplz.dayzdev.language.rap.psi.RapElementTypes;

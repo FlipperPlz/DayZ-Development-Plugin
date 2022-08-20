@@ -1,4 +1,4 @@
-package com.flipperplz.dayzdev.language.rap.highlighting;
+package com.flipperplz.dayzdev.language.rap.sugar.highlighting;
 
 import com.intellij.openapi.fileTypes.SyntaxHighlighterFactory;
 import com.intellij.openapi.project.Project;

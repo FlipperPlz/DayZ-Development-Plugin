@@ -25,16 +25,15 @@
                 language="Rap"
                 extensions="cpp;rvmat"
         />
-
         <lang.parserDefinition
             language="Rap"
             implementationClass="com.flipperplz.dayzdev.language.rap.parser.RapParserDefinition"
         />
         <lang.syntaxHighlighterFactory
             language="Rap"
-            implementationClass="com.flipperplz.dayzdev.language.rap.highlighting.RapSyntaxHighlighterFactory"
+            implementationClass="com.flipperplz.dayzdev.language.rap.sugar.highlighting.RapSyntaxHighlighterFactory"
         />
-        <colorSettingsPage implementation="com.flipperplz.dayzdev.language.rap.highlighting.settings.RapColorSettingsPage"/>
+        <colorSettingsPage implementation="com.flipperplz.dayzdev.language.rap.sugar.highlighting.settings.RapColorSettingsPage"/>
         <fileType
                 name="Enforce Script"
                 implementationClass="com.flipperplz.dayzdev.language.enforce.EnforceLanguageFileType"
@@ -45,6 +44,13 @@
         <lang.parserDefinition
                 language="Enforce"
                 implementationClass="com.flipperplz.dayzdev.language.enforce.parser.EnforceParserDefinition"
+        />
+        <lang.syntaxHighlighterFactory
+            language="Enforce"
+            implementationClass="com.flipperplz.dayzdev.language.enforce.sugar.highlighting.EnforceSyntaxHighlighterFactory"
+        />
+        <colorSettingsPage
+                implementation="com.flipperplz.dayzdev.language.enforce.sugar.highlighting.settings.EnforceColorSettingsPage"
         />
     </extensions>
 </idea-plugin>
