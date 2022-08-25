@@ -1,5 +1,6 @@
 package com.flipperplz.dayzdev.language.rap;
 
+import com.flipperplz.dayzdev.icons.IconLoader;
 import com.intellij.openapi.fileTypes.LanguageFileType;
 import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.util.NlsSafe;
@@ -33,6 +34,6 @@ public class RapLanguageFileType extends LanguageFileType {
 
     @Override
     public @Nullable Icon getIcon() {
-        return null; //TODO: ICON
+        return IconLoader.loadIcon("cpp");
     }
 }

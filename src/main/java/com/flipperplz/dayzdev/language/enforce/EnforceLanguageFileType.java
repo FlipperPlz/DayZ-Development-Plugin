@@ -1,5 +1,6 @@
 package com.flipperplz.dayzdev.language.enforce;
 
+import com.flipperplz.dayzdev.icons.IconLoader;
 import com.intellij.openapi.fileTypes.LanguageFileType;
 import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.util.NlsSafe;
@@ -35,6 +36,6 @@ public class EnforceLanguageFileType extends LanguageFileType {
 
     @Override
     public @Nullable Icon getIcon() {
-        return null;
+        return IconLoader.loadIcon("c");
     }
 }
