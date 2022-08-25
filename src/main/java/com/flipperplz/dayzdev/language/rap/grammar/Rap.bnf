@@ -1,5 +1,6 @@
 {
     parserClass="com.flipperplz.dayzdev.language.rap.parser.RapParser"
+  parserUtilClass="com.flipperplz.dayzdev.language.rap.parser.RapParserUtil"
 
     extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
 

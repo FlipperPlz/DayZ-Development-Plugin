@@ -1,4 +1,4 @@
-package com.flipperplz.dayzdev.language.enforce.lexer;
+package com.flipperplz.dayzdev.language.enforce.grammar;
 
 import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.tree.IElementType;
@@ -10,13 +10,13 @@ import static com.flipperplz.dayzdev.language.enforce.psi.EnforceElementTypes.*;
 %%
 
 %{
-  public EnforceLexer() {
+  public _EnforceLexer() {
     this((java.io.Reader)null);
   }
 %}
 
 %public
-%class EnforceLexer
+%class _EnforceLexer
 %implements FlexLexer
 %function advance
 %type IElementType
@@ -28,16 +28,13 @@ WHITE_SPACE=\s+
 SINGLE_LINE_COMMENT="//".*
 EMPTY_DELIMITED_COMMENT="/"\*\*?"/"
 DELIMITED_COMMENT="/"\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+"/"
+STRING_LITERAL=\"(\\\\|\\\"|.*?)*\"
 FLOAT_LITERAL=[+-]?[0-9]+(\.[0-9]+)([Ee][+-]?[0-9]+)?
 INTEGER_LITERAL=(0[xX][0-9a-fA-F]+)|-?[0-9]+
 BOOLEAN_LITERAL=(true|false)
 NULL_LITERAL=null
 IDENTIFIER=[a-zA-Z0-9_]+
 WHITE_SPACE=[ \t\n\x0B\f\r]+
-SChar=[^\"\'\\] | {ESC_CHAR}
-
-ESC_CHAR=\\[\\\"\']
-
 
 %%
 <YYINITIAL> {
@@ -127,7 +124,7 @@ ESC_CHAR=\\[\\\"\']
   {SINGLE_LINE_COMMENT}          { return SINGLE_LINE_COMMENT; }
   {EMPTY_DELIMITED_COMMENT}      { return EMPTY_DELIMITED_COMMENT; }
   {DELIMITED_COMMENT}            { return DELIMITED_COMMENT; }
-  \"{SChar}*\"                   { return STRING_LITERAL; }
+  {STRING_LITERAL}               { return STRING_LITERAL; }
   {FLOAT_LITERAL}                { return FLOAT_LITERAL; }
   {INTEGER_LITERAL}              { return INTEGER_LITERAL; }
   {BOOLEAN_LITERAL}              { return BOOLEAN_LITERAL; }
