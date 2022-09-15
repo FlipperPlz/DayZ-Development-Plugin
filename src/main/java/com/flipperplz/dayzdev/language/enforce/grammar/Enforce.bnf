@@ -1,5 +1,6 @@
 {
     parserClass="com.flipperplz.dayzdev.language.enforce.parser.EnforceParser"
+  parserUtilClass="com.flipperplz.dayzdev.language.enforce.parser.EnforceParserUtil"
 
     extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
 
@@ -9,7 +10,7 @@
     psiImplPackage="com.flipperplz.dayzdev.language.enforce.psi.impl"
 
     elementTypeHolderClass="com.flipperplz.dayzdev.language.enforce.psi.EnforceElementTypes"
-    elementTypeClass="com.flipperplz.dayzdev.language.enforce.psi.EnforceElementType"
+    elementTypeClass="com.flipperplz.dayzdev.language.enforce.psi.EnforceElementTypes"
     tokenTypeClass="com.flipperplz.dayzdev.language.enforce.psi.EnforceTokenType"
 
     tokens = [
