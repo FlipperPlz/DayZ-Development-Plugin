@@ -51,6 +51,7 @@ public class PboDataEntry extends PboEntry {
     @Deprecated
     public void setBinaryOffset(long offset) {
         reserved2 = offset;
+        entryParent.desynchronize();
     }
 
     public long getTimestamp() {
@@ -59,6 +60,8 @@ public class PboDataEntry extends PboEntry {
 
     public void setTimestamp(long size) {
         reserved3 = size;
+        entryParent.desynchronize();
+
     }
 
     public long getPackedSize() {
@@ -67,6 +70,8 @@ public class PboDataEntry extends PboEntry {
 
     public void setPackedSize(long size) {
         reserved4 = size;
+        entryParent.desynchronize();
+
     }
 
 }

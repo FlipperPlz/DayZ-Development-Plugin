@@ -7,9 +7,13 @@ public enum PboEntryMagic {
     Decompressed(0x00000000),
     Undefined(-1);
 
-    public int magic;
+    private int magic;
 
     PboEntryMagic(int i) {
         magic = i;
+    }
+
+    public int getMagic() {
+        return magic;
     }
 }

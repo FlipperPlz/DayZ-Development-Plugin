@@ -115,4 +115,11 @@ public class BisBinaryWriter extends FilterOutputStream {
     public long getPosition() {
         return position;
     }
+
+    @Override
+    public void close() throws IOException {
+        this.dataOutputStream.close();
+        super.close();
+
+    }
 }

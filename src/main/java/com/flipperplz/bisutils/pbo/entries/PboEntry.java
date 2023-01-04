@@ -32,6 +32,25 @@ public abstract class PboEntry extends BisBinarizable {
         this.entryParent = entryParent;
     }
 
+    public static PboEntry readPboEntry(BisBinaryReader reader, PboFile entryParent) throws Exception {
+        reader.mark(129);
+        var entryName = reader.readAsciiZ();
+        var magic = PboEntryMagic.values()[reader.readInt32(ByteOrder.LITTLE_ENDIAN)];
+        var reserved1 = reader.readUInt32(ByteOrder.LITTLE_ENDIAN);
+        var reserved2 = reader.readUInt32(ByteOrder.LITTLE_ENDIAN);
+        var reserved3 = reader.readUInt32(ByteOrder.LITTLE_ENDIAN);
+        var reserved4 = reader.readUInt32(ByteOrder.LITTLE_ENDIAN);
+        reader.reset();
+
+        if(entryName.equals("") && reserved1 == 0 && reserved2 == 0 && reserved3 == 0 && reserved4 == 0) {
+            if(magic == PboEntryMagic.Version) return new PboVersionEntry(reader, entryParent);
+            if(magic == PboEntryMagic.Decompressed) return new PboDummyEntry(reader, entryParent);
+        }
+
+        return new PboDataEntry(reader, entryParent);
+
+    }
+
 
     @Override
     public void readBinary(BisBinaryReader reader) throws Exception {
@@ -43,11 +62,15 @@ public abstract class PboEntry extends BisBinarizable {
         reserved4 = reader.readUInt32(ByteOrder.LITTLE_ENDIAN);
     }
 
+    private void readBinaryReserves(BisBinaryReader reader) throws Exception {
+
+    }
+
     @Override
     public void writeBinary(BisBinaryWriter writer) throws Exception {
         if (entryMagic == PboEntryMagic.Undefined) throw new Exception("Cannot write undefined entry. " + entryName);
         writer.writeAsciiZ(entryName);
-        writer.writeLittleEndian(entryMagic.magic);
+        writer.writeLittleEndian(entryMagic.getMagic());
         writer.writeUInt32(reserved1, ByteOrder.LITTLE_ENDIAN);
         writer.writeUInt32(reserved2, ByteOrder.LITTLE_ENDIAN);
         writer.writeUInt32(reserved3, ByteOrder.LITTLE_ENDIAN);

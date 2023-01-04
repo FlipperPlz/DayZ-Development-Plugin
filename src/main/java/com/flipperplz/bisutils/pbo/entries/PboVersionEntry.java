@@ -47,6 +47,8 @@ public class PboVersionEntry extends PboEntry {
 
     public void addPboMetadata(PboProperty property) {
         this.metadata.add(property);
+        entryParent.desynchronize();
+
     }
 
     public List<PboProperty> getPboMetadata() {
@@ -66,6 +68,7 @@ public class PboVersionEntry extends PboEntry {
 
     public void setPboMetadata(List<PboProperty> pboMetadata) {
         metadata = pboMetadata;
+        entryParent.desynchronize();
     }
 
 
