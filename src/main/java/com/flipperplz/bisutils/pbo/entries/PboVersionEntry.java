@@ -6,6 +6,7 @@ import com.flipperplz.bisutils.pbo.PboFile;
 import com.flipperplz.bisutils.pbo.enums.PboEntryMagic;
 import com.flipperplz.bisutils.pbo.utils.PboProperty;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,18 +14,18 @@ import java.util.List;
 public class PboVersionEntry extends PboEntry {
     private List<PboProperty> metadata = new ArrayList<>();
 
-    public PboVersionEntry(BisBinaryReader reader, PboFile entryParent) throws Exception {
+    public PboVersionEntry(BisBinaryReader reader, PboFile entryParent) throws IOException {
         super(reader, entryParent, PboEntryMagic.Version);
     }
 
     @Override
-    public void readBinary(BisBinaryReader reader) throws Exception {
+    public void readBinary(BisBinaryReader reader) throws IOException {
         super.readBinary(reader);
         if(!this.entryName.equals("") ||
                 this.reserved1 != 0 ||
                 this.reserved2 != 0 ||
                 this.reserved3 != 0 ||
-                this.reserved4 != 0) throw new Exception("This entry is not a version entry.");
+                this.reserved4 != 0) throw new IOException("This entry is not a version entry.");
 
         String propertyName;
         while(!(propertyName = reader.readAsciiZ()).equals("")) {
@@ -34,7 +35,7 @@ public class PboVersionEntry extends PboEntry {
     }
 
     @Override
-    public void writeBinary(BisBinaryWriter writer) throws Exception {
+    public void writeBinary(BisBinaryWriter writer) throws IOException {
         super.writeBinary(writer);
 
         for (var property : metadata) {
@@ -47,7 +48,7 @@ public class PboVersionEntry extends PboEntry {
 
     public void addPboMetadata(PboProperty property) {
         this.metadata.add(property);
-        entryParent.desynchronize();
+        entryParent.deSynchronize();
 
     }
 
@@ -68,7 +69,7 @@ public class PboVersionEntry extends PboEntry {
 
     public void setPboMetadata(List<PboProperty> pboMetadata) {
         metadata = pboMetadata;
-        entryParent.desynchronize();
+        entryParent.deSynchronize();
     }
 
 

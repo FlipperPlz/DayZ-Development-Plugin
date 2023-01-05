@@ -7,6 +7,7 @@ import com.flipperplz.bisutils.core.io.BisBinaryWriter;
 import com.flipperplz.bisutils.pbo.PboFile;
 import com.flipperplz.bisutils.pbo.enums.PboEntryMagic;
 
+import java.io.IOException;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 
@@ -20,19 +21,19 @@ public abstract class PboEntry extends BisBinarizable {
     protected long reserved3;
     protected long reserved4;
 
-    public PboEntry(BisBinaryReader reader, PboFile entryParent, PboEntryMagic magic) throws Exception {
+    public PboEntry(BisBinaryReader reader, PboFile entryParent, PboEntryMagic magic) throws IOException {
         super(reader);
         this.entryMagic = magic;
         this.entryParent = entryParent;
     }
 
-    public PboEntry(BisBinaryReader reader, PboFile entryParent) throws Exception {
+    public PboEntry(BisBinaryReader reader, PboFile entryParent) throws IOException {
         super(reader);
         this.entryMagic = PboEntryMagic.Undefined;
         this.entryParent = entryParent;
     }
 
-    public static PboEntry readPboEntry(BisBinaryReader reader, PboFile entryParent) throws Exception {
+    public static PboEntry readPboEntry(BisBinaryReader reader, PboFile entryParent) throws IOException {
         reader.mark(129);
         var entryName = reader.readAsciiZ();
         var magic = PboEntryMagic.values()[reader.readInt32(ByteOrder.LITTLE_ENDIAN)];
@@ -53,28 +54,32 @@ public abstract class PboEntry extends BisBinarizable {
 
 
     @Override
-    public void readBinary(BisBinaryReader reader) throws Exception {
+    public void readBinary(BisBinaryReader reader) throws IOException {
         this.entryName = reader.readAsciiZ();
-        if(this.entryMagic != PboEntryMagic.values()[reader.readInt32(ByteOrder.LITTLE_ENDIAN)]) throw new Exception("Incorrect magic value for pbo entry.");
+        if(this.entryMagic != PboEntryMagic.values()[reader.readInt32(ByteOrder.LITTLE_ENDIAN)]) throw new IOException("Incorrect magic value for pbo entry.");
+        readBinaryReserves(reader);
+    }
+
+    private void readBinaryReserves(BisBinaryReader reader) throws IOException {
         reserved1 = reader.readUInt32(ByteOrder.LITTLE_ENDIAN);
         reserved2 = reader.readUInt32(ByteOrder.LITTLE_ENDIAN);
         reserved3 = reader.readUInt32(ByteOrder.LITTLE_ENDIAN);
         reserved4 = reader.readUInt32(ByteOrder.LITTLE_ENDIAN);
     }
 
-    private void readBinaryReserves(BisBinaryReader reader) throws Exception {
-
-    }
-
-    @Override
-    public void writeBinary(BisBinaryWriter writer) throws Exception {
-        if (entryMagic == PboEntryMagic.Undefined) throw new Exception("Cannot write undefined entry. " + entryName);
-        writer.writeAsciiZ(entryName);
-        writer.writeLittleEndian(entryMagic.getMagic());
+    private void writeBinaryReserves(BisBinaryWriter writer) throws IOException {
         writer.writeUInt32(reserved1, ByteOrder.LITTLE_ENDIAN);
         writer.writeUInt32(reserved2, ByteOrder.LITTLE_ENDIAN);
         writer.writeUInt32(reserved3, ByteOrder.LITTLE_ENDIAN);
         writer.writeUInt32(reserved4, ByteOrder.LITTLE_ENDIAN);
+    }
+
+    @Override
+    public void writeBinary(BisBinaryWriter writer) throws IOException {
+        if (entryMagic == PboEntryMagic.Undefined) throw new IOException("Cannot write undefined entry. " + entryName);
+        writer.writeAsciiZ(entryName);
+        writer.writeLittleEndian(entryMagic.getMagic());
+        writeBinaryReserves(writer);
     }
 
     public int CalculateMetaLength() {

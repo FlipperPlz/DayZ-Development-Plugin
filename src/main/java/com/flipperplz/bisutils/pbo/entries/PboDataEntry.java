@@ -4,23 +4,24 @@ import com.flipperplz.bisutils.core.io.BisBinaryReader;
 import com.flipperplz.bisutils.pbo.PboFile;
 import com.flipperplz.bisutils.pbo.enums.PboEntryMagic;
 
+import java.io.IOException;
 import java.util.Objects;
 
 public class PboDataEntry extends PboEntry {
     public long entryDataStartOffset; //Relative to pbo data block
     public long entryDataStopOffset; //Relative to pbo data block
 
-    public PboDataEntry(BisBinaryReader reader, PboFile entryParent) throws Exception {
+    public PboDataEntry(BisBinaryReader reader, PboFile entryParent) throws IOException {
         super(reader, entryParent);
     }
 
     @Override
-    public void readBinary(BisBinaryReader reader) throws Exception {
+    public void readBinary(BisBinaryReader reader) throws IOException {
         super.readBinary(reader);
         if(entryMagic != PboEntryMagic.Compressed &&
            entryMagic != PboEntryMagic.Decompressed /*&&
            entryMagic != PboEntryMagic.Encrypted*/)
-            throw new Exception("This entry is not a data entry (or it is encrypted).");
+            throw new IOException("This entry is not a data entry (or it is encrypted).");
     }
 
     public void reinitializeOffsets() {
@@ -51,7 +52,7 @@ public class PboDataEntry extends PboEntry {
     @Deprecated
     public void setBinaryOffset(long offset) {
         reserved2 = offset;
-        entryParent.desynchronize();
+        entryParent.deSynchronize();
     }
 
     public long getTimestamp() {
@@ -60,7 +61,7 @@ public class PboDataEntry extends PboEntry {
 
     public void setTimestamp(long size) {
         reserved3 = size;
-        entryParent.desynchronize();
+        entryParent.deSynchronize();
 
     }
 
@@ -70,8 +71,7 @@ public class PboDataEntry extends PboEntry {
 
     public void setPackedSize(long size) {
         reserved4 = size;
-        entryParent.desynchronize();
+        entryParent.deSynchronize();
 
     }
-
 }
