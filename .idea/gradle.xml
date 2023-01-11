@@ -8,7 +8,7 @@
         <option name="testRunner" value="GRADLE" />
         <option name="distributionType" value="DEFAULT_WRAPPED" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="gradleHome" value="$PROJECT_DIR$/../../Program1/gradle-6.9.1" />
+        <option name="gradleHome" value="$USER_HOME$/Program1/gradle-6.9.1" />
         <option name="gradleJvm" value="16" />
         <option name="modules">
           <set>

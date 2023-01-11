@@ -31,8 +31,8 @@ LITERALINTEGER=-?[0-9]+
 LITERALFLOAT=[+-]?[0-9]+(\.[0-9]+)([Ee][+-]?[0-9]+)?
 IDENTIFIER=[a-zA-Z0-9_]+
 WHITE_SPACE=[ \t\n\x0B\f\r]+
-SChar=[^\"\'\\] | {ESC_CHAR}
-ESC_CHAR=\\[\\\"\']
+SChar=[^\"] | {ESC_CHAR}
+ESC_CHAR=""""
 
 %%
 <YYINITIAL> {
