@@ -39,6 +39,11 @@
                 fieldName="INSTANCE"
                 extensions="pbo"
         />
+        <sdkType
+                implementation="com.flipperplz.dayzdev.sdk.DayZSdkType"
+                os="windows"
+                id="DAYZ"
+        />
 
         <lang.parserDefinition
             language="Rap"
