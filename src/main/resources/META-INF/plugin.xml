@@ -19,12 +19,27 @@
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
         <fileType
-                name="Config File"
+                name="paramlang"
                 implementationClass="com.flipperplz.dayzdev.language.rap.RapLanguageFileType"
                 fieldName="INSTANCE"
                 language="Rap"
-                extensions="cpp;rvmat"
+                fileNamesCaseInsensitive="config.cpp;model.cfg"
+                extensions="rvmat"
         />
+        <fileType
+                name="enforce"
+                implementationClass="com.flipperplz.dayzdev.language.enforce.EnforceLanguageFileType"
+                fieldName="INSTANCE"
+                language="Enforce"
+                extensions="c"
+        />
+        <fileType
+                name="pbo"
+                implementationClass="com.flipperplz.dayzdev.vfs.PboFileType"
+                fieldName="INSTANCE"
+                extensions="pbo"
+        />
+
         <lang.parserDefinition
             language="Rap"
             implementationClass="com.flipperplz.dayzdev.language.rap.parser.RapParserDefinition"
@@ -34,13 +49,12 @@
             implementationClass="com.flipperplz.dayzdev.language.rap.sugar.highlighting.RapSyntaxHighlighterFactory"
         />
         <colorSettingsPage implementation="com.flipperplz.dayzdev.language.rap.sugar.highlighting.settings.RapColorSettingsPage"/>
-        <fileType
-                name="Enforce Script"
-                implementationClass="com.flipperplz.dayzdev.language.enforce.EnforceLanguageFileType"
-                fieldName="INSTANCE"
-                language="Enforce"
-                extensions="c"
+
+        <virtualFileSystem
+            id="PBO"
+            implementationClass="com.flipperplz.dayzdev.vfs.PboFileSystem"
         />
+
         <lang.parserDefinition
                 language="Enforce"
                 implementationClass="com.flipperplz.dayzdev.language.enforce.parser.EnforceParserDefinition"

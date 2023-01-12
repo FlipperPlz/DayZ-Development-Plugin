@@ -2,139 +2,133 @@ package com.flipperplz.dayzdev.vfs;
 
 import com.flipperplz.bisutils.pbo.PboFile;
 import com.flipperplz.bisutils.pbo.entry.entries.PboDataEntry;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.vfs.impl.ArchiveHandler;
+import com.intellij.openapi.vfs.impl.ZipHandler;
+import com.intellij.util.io.FileAccessorCache;
+import com.intellij.util.io.ResourceHandle;
+import com.jetbrains.qodana.sarif.model.Run;
 import org.apache.commons.io.FilenameUtils;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.nio.file.Files;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.*;
 
 public class PboHandler extends ArchiveHandler {
-    private static final URI ROOT_URI = URI.create("");
-    private String pboPrefix;
+    private static final Logger LOG = Logger.getInstance(PboHandler.class);
+    private static final FileAccessorCache<PboHandler, PboFile> pboFileAccessorCache = new FileAccessorCache<PboHandler, PboFile>(20, 10) {
+        @Override
+        protected @NotNull PboFile createAccessor(PboHandler handler) throws IOException {
+            var file = handler.getFile();
+            BasicFileAttributes attributes = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
+            handler.pboTimestamp = attributes.lastModifiedTime().toMillis();
+            handler.pboLength = attributes.size();
+            var pbo = new PboFile(file.toPath());
+            var defaultPrefix = DayZFilesystemUtils.normalizePboPrefix(FilenameUtils.getBaseName(file.getName()));
+
+            var versionEntry = pbo.getVersionEntry();
+            if(versionEntry == null) {
+                handler.pboPrefix = defaultPrefix;
+                return pbo;
+            }
+
+            var prefix = versionEntry.getPrefix();
+            if(prefix == null) {
+                handler.pboPrefix = defaultPrefix;
+                return pbo;
+            }
+
+            handler.pboPrefix = DayZFilesystemUtils.normalizePboPrefix(prefix);
+            return pbo;
+        }
+
+        @Override
+        protected void disposeAccessor(@NotNull PboFile fileAccessor) throws IOException {
+            fileAccessor.close();
+        }
+
+        @Override
+        public boolean isEqual(PboHandler val1, PboHandler val2) {
+            return val1 == val2;
+        }
+    };
+
+    private static final URI ROOT_URI = URI.create("pbo:/");
+    private volatile String pboPrefix;
+    private volatile long pboTimestamp;
+    private volatile long pboLength;
+
 
     protected PboHandler(@NotNull String path) {
         super(path);
     }
 
+    private @NotNull ResourceHandle<PboFile> acquirePboHandle() throws IOException {
+        try {
+            FileAccessorCache.Handle<PboFile> handle = pboFileAccessorCache.get(this);
+
+            File file = getFile();
+            BasicFileAttributes attrs = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
+            if (attrs.lastModifiedTime().toMillis() != pboTimestamp || attrs.size() != pboLength) {
+                //PBO was edited
+                clearCaches();
+                handle.release();
+                handle = pboFileAccessorCache.get(this);
+            }
+
+            return handle;
+        } catch (RuntimeException e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof IOException) throw (IOException)cause;
+            throw e;
+        }
+    }
+
+    @Override
+    public void clearCaches() {
+        pboFileAccessorCache.remove(this);
+        super.clearCaches();
+    }
+
+
     @Override
     protected @NotNull Map<String, EntryInfo> createEntriesMap() throws IOException {
-        Map<String, EntryInfo> map = new HashMap<>();
-        List<EntryInfo> infoList = new ArrayList<>();
-        var pboFile = new PboFile(Path.of(getFile().getAbsolutePath()));
-        var entryRoot = createRootEntry();
-        map.put("", entryRoot);
-        var split = getPboPrefix().split("\\\\");
-
-        var prefix = getPboPrefix().toLowerCase();
-        if(!prefix.endsWith("\\")) prefix += '\\';
-
-        for (var dataEnt: pboFile.getDataEntries()) {
-            getOrCreateFile(map, prefix + dataEnt.getEntryName(), entryRoot, dataEnt.getPackedSize(), false);
+        try (ResourceHandle<PboFile> pboRef = acquirePboHandle()) {
+            return buildEntryMapForPboFile(pboRef.get());
         }
-        pboFile.close();
-
-        return map;
-
     }
-
-    private EntryInfo getOrCreateFile(Map<String, EntryInfo> map, String entryPath, EntryInfo parent, int entryLength, boolean isDir) {
-        if(!entryPath.contains("\\")) {
-            var data = new EntryInfo(entryPath, isDir, entryLength, System.currentTimeMillis(), parent);
-            map.put(entryPath, data);
-            return data;
-        }
-
-        var tree = entryPath.split(entryPath);
-
-        EntryInfo currentParent = parent;
-        for (int i = 0, treeLength = tree.length; i < treeLength; i++) {
-            boolean isLast = !((i + 1) < treeLength);
-
-            var path = getFullPath(currentParent) + '\\' + tree[i];
-            if(!map.containsKey(path) || (isLast && map.get(path).isDirectory != isDir)) {
-                var data = new EntryInfo(tree[i], isLast ? isDir : true, entryLength, System.currentTimeMillis(), currentParent);
-                currentParent = data;
-                map.put(path, data);
-            } else currentParent = map.get(path);
-        }
-
-        return currentParent;
-    }
-
-    private static String getFullPath(EntryInfo entryInfo) {
-        StringBuilder path = new StringBuilder();
-        EntryInfo current = entryInfo;
-        while (current != null) {
-            path.insert(0, current.shortName);
-            current = current.parent;
-            if (current != null) {
-                path.insert(0, '\\');
-            }
-        }
-        return path.toString();
-    }
-
 
     @Override
     public byte @NotNull [] contentsToByteArray(@NotNull String relativePath) throws IOException {
-        EntryInfo entry = getEntryInfo(relativePath);
-        if (entry == null) throw new FileNotFoundException(getFile() + " : " + relativePath);
-        String entryName = relativePath.substring(getPboPrefix().length());
-        var pboFile = new PboFile(Path.of(getFile().getAbsolutePath()));
+        try (ResourceHandle<PboFile> pboRef = acquirePboHandle()) {
+            var pbo = pboRef.get();
+            var path = DayZFilesystemUtils.normalizePboPath(relativePath);
+            path = DayZFilesystemUtils.removePboPrefix(pboPrefix, path);
+            var entries = pbo.getDataEntries();
 
-        for (var dataEntry : pboFile.getDataEntries()) {
-            if (normalizePboPath(dataEntry.getEntryName()).equals(entryName)) {
-                var data = pboFile.getEntryData(dataEntry, true);
-                pboFile.close();
-                return data;
+            for (var entry : entries) {
+                if (!DayZFilesystemUtils.normalizePboPath(entry.getEntryName()).equals(path)) continue;
+                return  pbo.getEntryData(entry, true);
             }
         }
-
-        pboFile.close();
         throw new FileNotFoundException("File not found in pbo archive: " + relativePath);
     }
 
 
-    private String getPboPrefix() throws IOException {
-        if(pboPrefix != null) return pboPrefix;
-        var pboFile = new PboFile(Path.of(getFile().getAbsolutePath()));
-        var prefix = normalizePboPath(pboFile.getVersionEntry().getPrefix());
-        pboFile.close();
-        pboPrefix = (prefix == null ? normalizePboPath(FilenameUtils.removeExtension(getFile().getName())) : prefix);
-        return pboPrefix;
-    }
-
-    public static String normalizePboPath(String path) {
-        if (path == null || path.isEmpty()) return path;
-
-        char[] result = new char[path.length()];
-        boolean lastWasSeparator = false, isFirst = true; // Initialize flag to track if the last character was a separator
-        int charsWritten = 0; // counter to keep track of the number of characters written to the result array
-
-        for (int i = 0; i < path.length(); i++) { // Iterate through each character in the path
-            char c = path.charAt(i);
-            if (c == '/' || c == '\\') {
-                if(isFirst) continue;
-                if (lastWasSeparator) continue; // Skip if the last character was a seperator.
-                result[charsWritten++] = '\\';
-                lastWasSeparator = true;
-                continue;
-            }
-
-            isFirst = false;
-            lastWasSeparator = false;
-            result[charsWritten++] = Character.toLowerCase(c);
+    private @NotNull Map<String, EntryInfo> buildEntryMapForPboFile(PboFile pboFile) {
+        Map<String, EntryInfo> entryMap = new HashMap<>();
+        var entryRoot = createRootEntry();
+        var entries = pboFile.getDataEntries();
+        for (var dataEnt: entries) {
+            processEntry(entryMap, LOG, DayZFilesystemUtils.buildPboPath(pboPrefix, dataEnt.getEntryName()),
+                    (parent, name) -> new EntryInfo(name, false, dataEnt.getOriginalSize(), dataEnt.getTimestamp(), parent));
         }
 
-        if (charsWritten > 0 && result[charsWritten - 1] == '\\') charsWritten--;
-
-        return new String(result, 0, charsWritten);
+        return entryMap;
     }
 }
